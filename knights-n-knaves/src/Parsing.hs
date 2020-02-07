@@ -23,77 +23,85 @@ parseStatement names str =
       nnames = V.length names
       suffix = L.drop (len - 11) str
   in
-    if suffix == "is a knight" then
-      let name = L.take (len - 12) str
-      in
-        case V.elemIndex name names of
-          Nothing -> Just (names `snoc` name, Base nnames)
-          Just i  -> Just (names, Base i)
-    else if suffix == " is a knave" then
-      let name = L.take (len - 11) str
-      in
-        case V.elemIndex name names of
-          Nothing -> Just (names `snoc` name, Not (Base nnames))
-          Just i  -> Just (names, Not (Base i))
-    else
-      case L.head str of
-          '(' ->
-              let closingIndex = findClosingParens str
-                  statement1   = L.tail $ L.take closingIndex str
-                  rest         = L.drop (closingIndex + 1) str
-              in
-                case L.elemIndex '(' rest of
-                  Nothing -> parseStatement names statement1
-                  Just 0  -> Nothing
-                  Just 1  -> Nothing
-                  Just 2  -> Nothing
-                  Just 3  -> Nothing
-                  Just 4  ->
-                          let connective = L.take 4 rest
+    case L.head str of
+      '(' ->
+          let closingIndex = findClosingParens str
+              statement1   = L.tail $ L.take closingIndex str
+              rest         = L.drop (closingIndex + 1) str
+          in
+            case L.elemIndex '(' rest of
+              Nothing -> parseStatement names statement1
+              Just 0  -> Nothing
+              Just 1  -> Nothing
+              Just 2  -> Nothing
+              Just 3  -> Nothing
+              Just 4  ->
+                      let connective = L.take 4 rest
+                      in
+                        if connective == " if " then
+                          let statement2 = L.drop 4 rest
                           in
-                            if connective == " if " then
-                              let statement2 = L.drop 4 rest
-                              in
-                                case parseStatement names statement1 of
-                                  Nothing       -> Nothing
-                                  Just (ns, st) ->
-                                    case parseStatement ns statement2 of
-                                      Nothing         -> Nothing
-                                      Just (ns', st') -> Just (ns', If st' st)
-                            else if connective == " or " then
-                              let statement2 = L.drop 4 rest
-                              in
-                                case parseStatement names statement1 of
-                                  Nothing       -> Nothing
-                                  Just (ns, st) ->
-                                    case parseStatement ns statement2 of
-                                      Nothing         -> Nothing
-                                      Just (ns', st') -> Just (ns', Or st' st)
-                            else Nothing
-                  Just 5  ->
-                          let connective = L.take 5 rest
+                            case parseStatement names statement1 of
+                              Nothing       -> Nothing
+                              Just (ns, st) ->
+                                case parseStatement ns statement2 of
+                                  Nothing         -> Nothing
+                                  Just (ns', st') -> Just (ns', If st' st)
+                        else if connective == " or " then
+                          let statement2 = L.drop 4 rest
                           in
-                            if connective == " and " then
-                              let statement2 = L.drop 5 rest
-                              in
-                                case parseStatement names statement1 of
-                                  Nothing       -> Nothing
-                                  Just (ns, st) ->
-                                    case parseStatement ns statement2 of
-                                      Nothing         -> Nothing
-                                      Just (ns', st') -> Just (ns', And st' st)
-                            else if connective == " iff " then
-                              let statement2 = L.drop 5 rest
-                              in
-                                case parseStatement names statement1 of
-                                  Nothing       -> Nothing
-                                  Just (ns, st) ->
-                                    case parseStatement ns statement2 of
-                                      Nothing         -> Nothing
-                                      Just (ns', st') -> Just (ns', Iff st' st)
-                            else Nothing
-                  Just _  -> Nothing
-          _   -> Nothing
+                            case parseStatement names statement1 of
+                              Nothing       -> Nothing
+                              Just (ns, st) ->
+                                case parseStatement ns statement2 of
+                                  Nothing         -> Nothing
+                                  Just (ns', st') -> Just (ns', Or st' st)
+                        else Nothing
+              Just 5  ->
+                      let connective = L.take 5 rest
+                      in
+                        if connective == " and " then
+                          let statement2 = L.drop 5 rest
+                          in
+                            case parseStatement names statement1 of
+                              Nothing       -> Nothing
+                              Just (ns, st) ->
+                                case parseStatement ns statement2 of
+                                  Nothing         -> Nothing
+                                  Just (ns', st') -> Just (ns', And st' st)
+                        else if connective == " iff " then
+                          let statement2 = L.drop 5 rest
+                          in
+                            case parseStatement names statement1 of
+                              Nothing       -> Nothing
+                              Just (ns, st) ->
+                                case parseStatement ns statement2 of
+                                  Nothing         -> Nothing
+                                  Just (ns', st') -> Just (ns', Iff st' st)
+                        else Nothing
+              Just _  -> Nothing
+      'n' ->
+          if L.take 3 str == "not" then
+            let statement = L.drop 4 str
+            in
+              case parseStatement names statement of
+                Nothing       -> Nothing
+                Just (ns, st) -> Just (ns, Not st)
+          else Nothing
+      _   ->
+          if suffix == "is a knight" then
+            let name = L.take (len - 12) str
+            in
+              case V.elemIndex name names of
+                Nothing -> Just (names `snoc` name, Base nnames)
+                Just i  -> Just (names, Base i)
+          else if suffix == " is a knave" then
+            let name = L.take (len - 11) str
+            in
+              case V.elemIndex name names of
+                Nothing -> Just (names `snoc` name, Not (Base nnames))
+                Just i  -> Just (names, Not (Base i))
+          else Nothing
 
 findSays :: String -> Maybe Int
 findSays string =
