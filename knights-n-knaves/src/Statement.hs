@@ -18,8 +18,3 @@ evalStatement w (And s s') = (evalStatement w s) && (evalStatement w s')
 evalStatement w (Or s s')  = (evalStatement w s) || (evalStatement w s')
 evalStatement w (If s s')  = (not (evalStatement w s)) || (evalStatement w s')
 evalStatement w (Iff s s') = (evalStatement w s) == (evalStatement w s')
-
-evalStatements :: Word64 -> [Statement] -> Word64
-evalStatements w statements =
-  let indices = map fst $ filter snd $ zip [0..] $ map (evalStatement w) statements
-  in foldl (\w i -> setBit w i) 0 indices

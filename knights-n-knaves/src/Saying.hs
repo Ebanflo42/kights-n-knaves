@@ -10,11 +10,13 @@ import Statement
 
 type Saying = (Int, Statement)
 
-checkSaying :: Word64 -> Saying -> Bool
-checkSaying w (i, s) = testBit (evalStatement w s) i
+evalSayings :: Word64 -> [Saying] -> Word64
+evalSayings w sayings =
+  let indices = map fst $ filter snd $ map (\(i, s) -> (i, evalStatement w s)) sayings
+  in foldl (\w i -> setBit w i) 0 indices
 
 checkSayings :: [Saying] -> Word64 -> Bool
-checkSayings sayings w = all (checkSaying w) sayings
+checkSayings sayings w = w == evalSayings w sayings
 
 findAllSolutions :: Int -> [Saying] -> [Word64]
 findAllSolutions numCharacters sayings =
