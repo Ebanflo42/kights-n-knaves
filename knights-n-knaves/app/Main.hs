@@ -20,7 +20,7 @@ showSolns :: Int -> Vector String -> [Word64] -> String
 showSolns numCharacters names solns =
   let strs = L.map (showSoln numCharacters names) solns
   in L.concat $ L.map (\(i, str) ->
-      "\nSolution " L.++ (show i) L.++ ":\n" L.++ str) $ L.zip [0..] strs
+      "\nSolution " L.++ (show i) L.++ ":\n" L.++ str) $ L.zip [1..] strs
 
 takeInputAndCompute :: Vector String -> [Saying] -> String -> IO ()
 takeInputAndCompute names sayings input =
