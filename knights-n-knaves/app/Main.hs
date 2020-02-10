@@ -26,7 +26,7 @@ takeInputAndCompute :: Vector String -> [Saying] -> String -> IO ()
 takeInputAndCompute names sayings input =
   if input == "solve" then
     let numCharacters = V.length names
-        solns         = findAllSolutions numCharacters sayings
+        solns         = findAllSolutions numCharacters $ refineSayings numCharacters sayings
     in putStrLn (showSolns numCharacters names solns)
          >> getLine >>= takeInputAndCompute V.empty []
   else if input == "quit" then return ()

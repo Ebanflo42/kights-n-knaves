@@ -10,9 +10,24 @@ import Statement
 
 type Saying = (Int, Statement)
 
+exists :: (a -> Bool) -> [a] -> Bool
+exists p []     = False
+exists p (x:xs) = if p x then True else exists p xs
+
+refineSayings :: Int -> [Saying] -> [Saying]
+refineSayings numCharacters sayings =
+  let reduce [] say              = say
+      reduce ((i, s):xs) (_, st) = (i, And s st)
+  in map (\i ->
+    let things = filter (\(j, s) -> i == j) sayings
+    in
+      if things == []
+      then (i, Base i)
+      else reduce (tail things) (head things)) [0 .. numCharacters]
+
 evalSayings :: Word64 -> [Saying] -> Word64
-evalSayings w sayings =
-  let indices = map fst $ filter snd $ map (\(i, s) -> (i, evalStatement w s)) sayings
+evalSayings world sayings =
+  let indices = map fst $ filter snd $ map (\(i, s) -> (i, evalStatement world s)) sayings
   in foldl (\w i -> setBit w i) 0 indices
 
 checkSayings :: [Saying] -> Word64 -> Bool
