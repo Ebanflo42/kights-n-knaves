@@ -1,12 +1,12 @@
-module Parsing where
+module Knk.Parsing where
 
-import Statement
-import Saying
+import Knk.Statement
+import Knk.Saying
 
 import Data.Vector as V
 import Data.List as L
 
---find the index of the parantheses that closes the first open parantheses
+-- | Find the index of the parantheses that closes the first open parantheses.
 findClosingParens :: String -> Int
 findClosingParens str =
   let findClosingParens 1 (')':_) = 0
@@ -15,8 +15,10 @@ findClosingParens str =
       findClosingParens n (c:s)   = 1 + findClosingParens n s
   in findClosingParens 0 str
 
---given a new string and a list of new names
---if parsing is successful output the list of new names and the parse statement
+{- |
+  Given a new string and a list of known names,
+  if parsing is successful then output the list of new names and the parsed statement.
+-}
 parseStatement :: Vector String -> String -> Maybe (Vector String, Statement)
 parseStatement names str =
   let len    = L.length str
@@ -103,6 +105,7 @@ parseStatement names str =
                 Just i  -> Just (names, Not (Base i))
           else Nothing
 
+-- | Identify the index of the keyword " says ".
 findSays :: String -> Maybe Int
 findSays string =
   let helper i (a:b:c:d:e:f:xs) =
@@ -112,6 +115,10 @@ findSays string =
       helper i _                = Nothing
   in helper 0 string
 
+{- |
+  Given a new string and a list of known names,
+  if parsing is successful then output the list of new names and the parsed saying.
+-}
 parseSaying :: Vector String -> String -> Maybe (Vector String, Saying)
 parseSaying names string =
   case findSays string of

@@ -1,8 +1,8 @@
 module Main where
 
-import Statement
-import Saying
-import Parsing
+import Knk.Statement
+import Knk.Saying
+import Knk.Parsing
 
 import Data.Word
 import Data.Bits
